@@ -73,6 +73,7 @@ class PlayState extends Phaser.State {
         if(this.pet.customParams.health <= 0 || this.pet.customParams.fun <= 0)
         {
             this.pet.frame = 4;
+            this.clearSelection();
             this.uiBlocked = true;
 
             this.game.time.events.add(2000, this.gameOver, this);
@@ -82,21 +83,21 @@ class PlayState extends Phaser.State {
     pickItem(sprite)
     {
         if( this.selectedItem === sprite )
-        {
+            {
+                this.clearSelection();
+                return;
+            }
+
+            if(this.uiBlocked) return;
+
+            this.uiBlocked = true;
+
             this.clearSelection();
-            return;
-        }
 
-        if(this.uiBlocked) return;
+            //alpha to indicate selection
+            sprite.alpha = 0.4;
 
-        this.uiBlocked = true;
-
-        this.clearSelection();
-
-        //alpha to indicate selection
-        sprite.alpha = 0.4;
-
-        this.selectedItem = sprite;
+            this.selectedItem = sprite;
     }
 
     rotatePet(sprite)
@@ -151,9 +152,56 @@ class PlayState extends Phaser.State {
         this.refreshStats();
     }
 
-    placeItem()
+    placeItem(sprite, event)
     {
+        if(!this.selectedItem && this.uiBlocked) return;
+
+        let x = event.position.x;
+        let y = event.position.y;
+
+        let newItem = this.game.add.sprite(x, y, this.selectedItem.key);
+
+        newItem.anchor.setTo(0.5);
+        newItem.customParams = this.selectedItem.customParams;
+
+        this.uiBlocked = true;
+
+        //move the pet towards the item
+        let petMovement = this.game.add.tween(this.pet);
+
+        petMovement.to({x: x, y: y}, 700);
+
+        petMovement.start();
+
+        petMovement.onComplete.add( this.consume.bind(this, newItem), this );
+
         console.log('placing item');
+    }
+
+    consume( item )
+    {
+        item.destroy();
+
+        //play animation
+        this.pet.animations.play('funnyfaces');
+
+        //release the ui
+        this.uiBlocked = false;
+
+        let stat;
+
+        for(stat in item.customParams)
+        {
+            //we only want the properties of the customParams object, not properties that may existing in customParams.prototype
+            //this filters out all non-desired properties
+            if(item.customParams.hasOwnProperty(stat))
+            {
+                this.pet.customParams[stat] += item.customParams[stat];
+            }
+        }
+
+        //update the visuals for the stats
+        this.refreshStats();
     }
 
     refreshStats()
