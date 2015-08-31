@@ -1,3 +1,5 @@
+import Pet from '../prefabs/Pet';
+
 class PlayState extends Phaser.State {
     create()
     {
@@ -83,21 +85,21 @@ class PlayState extends Phaser.State {
     pickItem(sprite)
     {
         if( this.selectedItem === sprite )
-            {
-                this.clearSelection();
-                return;
-            }
-
-            if(this.uiBlocked) return;
-
-            this.uiBlocked = true;
-
+        {
             this.clearSelection();
+            return;
+        }
 
-            //alpha to indicate selection
-            sprite.alpha = 0.4;
+        if(this.uiBlocked) return;
 
-            this.selectedItem = sprite;
+        this.uiBlocked = true;
+
+        this.clearSelection();
+
+        //alpha to indicate selection
+        sprite.alpha = 0.4;
+
+        this.selectedItem = sprite;
     }
 
     rotatePet(sprite)
@@ -154,7 +156,7 @@ class PlayState extends Phaser.State {
 
     placeItem(sprite, event)
     {
-        if(!this.selectedItem && this.uiBlocked) return;
+        if(!this.selectedItem || this.uiBlocked) return;
 
         let x = event.position.x;
         let y = event.position.y;
