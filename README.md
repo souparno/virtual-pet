@@ -1,7 +1,8 @@
 # Phaser game 2
 
 Virtual pet game in [Zenva Academy](academy.zenva.com) course.
-Porting it to ES6 and using more states to encapsulate the logic
+Porting it to ES6 and defining pet prefab to refactor pet logic out of
+main game state
 
 ES6 and Phaser starting template used: [phaser-es6-boilerplate](https://github.com/belohlavek/phaser-es6-boilerplate)
 
