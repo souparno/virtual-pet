@@ -20,17 +20,112 @@ class PlayState extends Phaser.State {
 
         //pet health and fun texts
         let style = { font: '20px Arial', fill: '#fff'};
+
         this.game.add.text(10, 20, 'Health:', style);
         this.game.add.text(140, 20, 'Fun:', style);
 
         this.healthText = this.game.add.text(80, 20, '', style);
         this.funText = this.game.add.text(185, 20, '', style);
 
+        //buttons
+        this.apple = this.game.add.sprite(72, 570, 'apple');
+        this.apple.anchor.setTo(0.5);
+        this.apple.inputEnabled = true;
+        this.apple.customParams = {health: 20};
+
+        this.apple.events.onInputDown.add(this.pickItem, this);
+
+        this.candy = this.game.add.sprite(144, 570, 'candy');
+        this.candy.anchor.setTo(0.5);
+        this.candy.inputEnabled = true;
+        this.candy.customParams = {health: -10, fun: 10};
+
+        this.candy.events.onInputDown.add(this.pickItem, this);
+
+        this.toy = this.game.add.sprite(216, 570, 'toy');
+        this.toy.anchor.setTo(0.5);
+        this.toy.inputEnabled = true;
+        this.toy.customParams = {fun: 20};
+
+        this.toy.events.onInputDown.add(this.pickItem, this);
+
+        this.rotate = this.game.add.sprite(288, 570, 'rotate');
+        this.rotate.anchor.setTo(0.5);
+        this.rotate.inputEnabled = true;
+        this.rotate.events.onInputDown.add(this.rotatePet, this);
+
+        this.buttons = [this.apple, this.candy, this.toy, this.rotate];
+
+        //nothing is selected
+        this.selectedItem = null;
+
+        //the user interface (UI) is not blocked at the start
+        this.uiBlocked = false;
+
+        //decrease the health every 5 seconds
+        this.statsDecreaser = this.game.time.events.loop(Phaser.Timer.SECOND * 5, this.reduceProperties, this);
+
         this.refreshStats();
     }
 
     update()
     {
+        if(this.pet.customParams.health <= 0 || this.pet.customParams.fun <= 0)
+            {
+                this.pet.frame = 4;
+                this.uiBlocked = true;
+
+                this.game.time.events.add(2000, this.gameOver, this);
+            }
+    }
+
+    pickItem()
+    {
+        this.uiBlocked = true;
+    }
+
+    rotatePet(sprite)
+    {
+        if(this.uiBlocked) return;
+
+        this.uiBlocked = true;
+
+        this.clearSelection();
+
+        //alpha to indicate selection
+        sprite.alpha = 0.4;
+
+        let petRotation = this.game.add.tween(this.pet);
+
+        //make the pet do two loops during 1 sec
+        petRotation.to({angle: '+720'}, 1000);
+
+        petRotation.onComplete.add(() => {
+            //release the UI
+            this.uiBlocked = false;
+
+            sprite.alpha = 1;
+
+            //increse the fun of the pet
+            this.pet.customParams.fun += 10;
+
+            //update the visuals for the stats
+            this.refreshStats();
+        }, this);
+
+        //start the tween animation
+        petRotation.start();
+    }
+
+    clearSelection()
+    {
+    }
+
+    reduceProperties()
+    {
+        this.pet.customParams.health -= 10;
+        this.pet.customParams.fun -= 15;
+        this.refreshStats();
     }
 
     placeItem()
