@@ -174,8 +174,6 @@ class PlayState extends Phaser.State {
         petMovement.start();
 
         petMovement.onComplete.add( this.consume.bind(this, newItem), this );
-
-        console.log('placing item');
     }
 
     consume( item )
