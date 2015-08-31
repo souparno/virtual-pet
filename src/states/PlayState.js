@@ -71,17 +71,32 @@ class PlayState extends Phaser.State {
     update()
     {
         if(this.pet.customParams.health <= 0 || this.pet.customParams.fun <= 0)
-            {
-                this.pet.frame = 4;
-                this.uiBlocked = true;
+        {
+            this.pet.frame = 4;
+            this.uiBlocked = true;
 
-                this.game.time.events.add(2000, this.gameOver, this);
-            }
+            this.game.time.events.add(2000, this.gameOver, this);
+        }
     }
 
-    pickItem()
+    pickItem(sprite)
     {
+        if( this.selectedItem === sprite )
+        {
+            this.clearSelection();
+            return;
+        }
+
+        if(this.uiBlocked) return;
+
         this.uiBlocked = true;
+
+        this.clearSelection();
+
+        //alpha to indicate selection
+        sprite.alpha = 0.4;
+
+        this.selectedItem = sprite;
     }
 
     rotatePet(sprite)
@@ -119,6 +134,14 @@ class PlayState extends Phaser.State {
 
     clearSelection()
     {
+        this.uiBlocked = false;
+
+        this.buttons.forEach( (element) => {
+            element.alpha = 1;
+        });
+
+        //we are not selecting anything now
+        this.selectedItem = null;
     }
 
     reduceProperties()
