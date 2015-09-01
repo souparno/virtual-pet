@@ -7,18 +7,9 @@ class PlayState extends Phaser.State {
         this.background.inputEnabled = true;
         this.background.events.onInputDown.add(this.placeItem, this);
 
-        this.pet = this.game.add.sprite(100, 400, 'pet');
-        this.pet.anchor.setTo(0.5);
+        this.pet = new Pet(this.game, 100, 400);
 
-        //spritesheet animation
-        this.pet.animations.add('funnyfaces', [1, 2, 3, 2, 1], 7, false);
-
-        //custom properties
-        this.pet.customParams = {health: 100, fun: 100};
-
-        //draggable pet
-        this.pet.inputEnabled = true;
-        this.pet.input.enableDrag();
+        this.game.add.existing(this.pet);
 
         //pet health and fun texts
         let style = { font: '20px Arial', fill: '#fff'};
